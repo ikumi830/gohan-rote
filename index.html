@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FBF7F2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1B1816" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ごはんローテ">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>ごはんローテ</title>
+<style>
+:root{
+  --bg:#FBF7F2;--card:#FFFFFF;--text:#2B2622;--sub:#7A706A;--line:#ECE4DB;
+  --accent:#D9652C;--accent-ink:#FFFFFF;--accent-soft:#FCE9DE;
+  --ok:#2F8A5B;--ok-soft:#E3F3EA;--danger:#C94A3B;
+  --shadow:0 1px 2px rgba(60,40,20,.05),0 4px 14px rgba(60,40,20,.06);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#1B1816;--card:#262220;--text:#F2ECE6;--sub:#A69C94;--line:#3A3430;
+  --accent:#F08A55;--accent-ink:#1B1816;--accent-soft:#3A2A21;
+  --ok:#5BC08A;--ok-soft:#1F3328;--danger:#E26B5C;--shadow:none;
+}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;font-size:16px;line-height:1.5}
+body{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+body.noscroll{overflow:hidden}
+button{cursor:pointer}
+
+.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(12px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:baseline;justify-content:space-between;max-width:560px;margin:0 auto}
+.top h1{font-size:18px;margin:0;font-weight:800}
+.top span{color:var(--sub);font-size:14px}
+main{padding:0 16px 24px;max-width:560px;margin:0 auto}
+
+.tabs{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:10}
+.tabs button{flex:1;max-width:160px;border:0;background:none;color:var(--sub);padding:8px 0 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;font-size:11px}
+.tabs svg{width:24px;height:24px}
+.tabs button.on{color:var(--accent);font-weight:700}
+
+.card{background:var(--card);border-radius:16px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--line);margin-bottom:12px}
+.btn{appearance:none;-webkit-appearance:none;border:0;border-radius:12px;padding:12px 16px;font:inherit;font-weight:700;background:var(--accent-soft);color:var(--accent);min-height:46px}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:var(--card);border:1px solid var(--line);color:var(--text)}
+.btn.danger-ghost{background:none;border:1px solid var(--line);color:var(--danger)}
+.btn.block{display:block;width:100%;text-align:center;text-decoration:none}
+.btn.lg{font-size:18px;min-height:54px}
+main>.btn{margin-bottom:12px}
+.row{display:flex;gap:8px}
+.row>.btn{flex:1}
+
+.sub{color:var(--sub);font-size:14px}
+.hint{color:var(--sub);font-size:14px;margin:4px 2px 12px}
+.small{color:var(--sub);font-size:13px;margin:0 0 12px}
+.sec{display:flex;align-items:baseline;gap:8px;font-size:15px;margin:22px 4px 8px;font-weight:800}
+.sec small{color:var(--sub);font-weight:400;font-size:13px}
+.sec:first-child{margin-top:6px}
+
+.hero{padding:18px;border-color:var(--accent)}
+.dish-name{font-size:26px;font-weight:800;line-height:1.25;margin:0 0 2px;word-break:break-word}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.chip{font-size:13px;padding:3px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
+.memo{white-space:pre-wrap;font-size:14px;background:var(--bg);padding:10px 12px;border-radius:10px;margin:12px 0}
+.hero .btn{margin-top:10px}
+.hero .row .btn.primary{flex:2}
+
+.list{padding:2px 0}
+.lrow{display:flex;width:100%;justify-content:space-between;align-items:center;gap:10px;background:none;border:0;border-bottom:1px solid var(--line);font:inherit;color:inherit;text-align:left;padding:12px 16px;min-height:58px}
+.lrow:last-child{border-bottom:0}
+.lname{display:block;font-weight:700;overflow-wrap:anywhere}
+.lrow small{color:var(--sub);font-size:13px}
+.later .lname{font-weight:500}
+.pill{flex:none;font-size:13px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:5px 12px}
+.pill.quiet{color:var(--sub);background:var(--bg);border:1px solid var(--line);font-weight:500}
+.badge{flex:none;font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:3px 10px}
+.badge.quiet{color:var(--sub);background:none;font-weight:500;padding:3px 0}
+.more{display:block;width:100%;background:none;border:0;color:var(--sub);font:inherit;font-size:14px;padding:12px;text-align:center}
+
+.empty{text-align:center;padding:28px 20px}
+.empty .big{font-size:48px;line-height:1}
+.empty h2{font-size:20px;margin:12px 0 8px}
+.empty p{color:var(--sub);font-size:14px;margin:0 0 16px}
+.empty .btn{margin-top:8px}
+.empty-line{padding:16px;color:var(--sub);font-size:14px;text-align:center}
+
+.add-row{display:flex;gap:8px;margin-bottom:12px}
+.add-row .btn{flex:none}
+.srow{display:flex;align-items:center;border-bottom:1px solid var(--line)}
+.srow:last-child{border-bottom:0}
+.s-main{flex:1;min-width:0;display:flex;gap:12px;align-items:center;background:none;border:0;font:inherit;color:inherit;text-align:left;padding:12px 16px;min-height:54px}
+.s-main small{display:block;font-size:12px;color:var(--sub)}
+.box{width:22px;height:22px;border-radius:6px;border:2px solid var(--line);flex:none;display:grid;place-items:center}
+.srow.checked .box{background:var(--ok);border-color:var(--ok)}
+.srow.checked .box::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:translate(0,-1px) rotate(45deg)}
+.srow.checked .sname{text-decoration:line-through;color:var(--sub)}
+.icon-btn{flex:none;width:44px;height:44px;border:0;background:none;color:var(--sub);font-size:20px;border-radius:10px;margin-right:6px;font-family:inherit}
+
+input,textarea{width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.f{display:block;margin:0 0 18px}
+.f>span{display:block;font-size:14px;font-weight:700;margin-bottom:6px}
+.f small{font-weight:400;color:var(--sub)}
+.inline{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14px}
+.inline input{width:90px}
+.pick{margin:0}
+.chip-btn{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:999px;padding:6px 14px;font:inherit;font-size:14px}
+.chip-btn.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
+.sheet-wrap{position:fixed;inset:0;z-index:50}
+.backdrop{position:absolute;inset:0;background:rgba(0,0,0,.35);opacity:0;transition:opacity .2s}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:88vh;max-height:88dvh;overflow:auto;background:var(--card);border-radius:20px 20px 0 0;padding:0 16px calc(24px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .22s ease;max-width:560px;margin:0 auto;overscroll-behavior:contain}
+.sheet-wrap.open .backdrop{opacity:1}
+.sheet-wrap.open .sheet{transform:none}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--card);padding:14px 0 10px;z-index:1}
+.sheet-head h2{font-size:17px;margin:0}
+.sheet-head .icon-btn{margin-right:-8px}
+
+.steps{margin:0 0 14px;padding-left:1.4em;font-size:14px}
+.steps li{margin-bottom:8px}
+.steps small{display:block;color:var(--sub);font-size:13px}
+.ai-in{margin:14px 0 8px}
+.pv{padding:10px 16px;border-bottom:1px solid var(--line);font-size:14px}
+.pv:last-child{border-bottom:0}
+.pv.ng{color:var(--sub)}
+.warn{color:var(--danger);font-size:14px}
+.ai-entry{display:flex;align-items:center;gap:12px;width:100%;margin-top:20px;text-align:left;font:inherit;color:inherit}
+.ai-entry b{display:block}
+.ai-entry small{color:var(--sub);font-size:13px}
+.ai-entry .big{font-size:26px;line-height:1}
+
+#toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translate(-50%,16px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:60;width:max-content;max-width:calc(100% - 32px);display:flex;align-items:center;gap:12px}
+#toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#toast button{flex:none;background:none;border:0;color:var(--accent);font:inherit;font-weight:700;padding:4px 0}
+@media (prefers-color-scheme:dark){#toast button{color:#D9652C}}
+</style>
+</head>
+<body>
+<header class="top"><h1>ごはんローテ</h1><span id="todayLabel"></span></header>
+<main id="view"></main>
+
+<nav class="tabs">
+  <button data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/></svg><span>ごはん</span></button>
+  <button data-tab="shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12.1a1 1 0 0 1-1 .9H7.2a1 1 0 0 1-1-.9L5 8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span>買い物</span></button>
+  <button data-tab="dishes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>料理</span></button>
+</nav>
+
+<div id="sheet" class="sheet-wrap" hidden>
+  <div class="backdrop" data-act="close-sheet"></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head"><h2 id="sheetTitle"></h2><button class="icon-btn" data-act="close-sheet" aria-label="閉じる">✕</button></div>
+    <div id="sheetBody"></div>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+
+<script>
+'use strict';
+const KEY = 'gohan-rote-v1';
+const WD = ['日','月','火','水','木','金','土'];
+
+// ---------- 日付まわり（端末のローカル日付 YYYY-MM-DD） ----------
+const pad = n => String(n).padStart(2, '0');
+const fmt = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const diff = (a, b) => Math.round((parse(a) - parse(b)) / 864e5);
+const today = () => fmt(new Date());
+const md = s => { const d = parse(s); return `${d.getMonth() + 1}/${d.getDate()}(${WD[d.getDay()]})`; };
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const safeUrl = u => /^https?:\/\//i.test(u || '') ? u : '';
+
+// ---------- データ ----------
+function blank() {
+  return { version: 2, dishes: [], picked: [], checked: {}, extras: [], settings: { lastBackup: null } };
+}
+function normalize(o) {
+  const b = blank();
+  if (!o || typeof o !== 'object') return b;
+  const dishes = (Array.isArray(o.dishes) ? o.dishes : []).filter(d => d && d.name).map(d => ({
+    id: String(d.id || uid()),
+    name: String(d.name),
+    interval: Math.min(365, Math.max(1, parseInt(d.interval) || 7)),
+    history: [...new Set((Array.isArray(d.history) ? d.history : []).filter(x => /^\d{4}-\d\d-\d\d$/.test(x)))].sort(),
+    ingredients: (Array.isArray(d.ingredients) ? d.ingredients : []).map(String).filter(Boolean),
+    memo: String(d.memo || ''),
+    url: String(d.url || ''),
+  }));
+  const ids = new Set(dishes.map(d => d.id));
+  return {
+    version: 2,
+    dishes,
+    picked: (Array.isArray(o.picked) ? o.picked : []).map(String).filter(id => ids.has(id)),
+    checked: o.checked && typeof o.checked === 'object' ? { ...o.checked } : {},
+    extras: Array.isArray(o.extras) ? o.extras.map(String) : [],
+    settings: { ...b.settings, ...(o.settings || {}) },
+  };
+}
+function load() {
+  try { const raw = localStorage.getItem(KEY); if (raw) return normalize(JSON.parse(raw)); } catch (e) {}
+  return blank();
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch (e) { toast('保存できませんでした。ブラウザの設定を確認してください'); }
+}
+let S = load();
+const byId = id => S.dishes.find(d => d.id === id);
+const lastMade = d => d.history.length ? d.history[d.history.length - 1] : null;
+
+// 前回から何日たったか（作ったことがなければ null）
+const daysSince = d => { const l = lastMade(d); return l ? diff(today(), l) : null; };
+// 「そろそろ」＝ 前回から設定した日数以上たった（または一度も作っていない）
+const isDue = d => { const g = daysSince(d); return g == null || g >= d.interval; };
+// 並び順：久しぶり度（前回からの日数 ÷ 間隔）が大きい順。未経験は一番上
+const dueScore = d => { const g = daysSince(d); return g == null ? Infinity : g / d.interval; };
+
+// ---------- 画面 ----------
+let tab = 'home';
+let showLater = false;
+
+function render() {
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  $('#todayLabel').textContent = md(today());
+  $('#view').innerHTML = { home: viewHome, shop: viewShop, dishes: viewDishes }[tab]();
+}
+
+function emptyState() {
+  return `<div class="card empty">
+    <div class="big">🍳</div>
+    <h2>まずは料理を登録しよう</h2>
+    <p>いつも作る料理と「何日おきくらいに食べたいか」を登録すると、そろそろ食べたい料理が一覧に出てきます。</p>
+    <button class="btn primary block" data-act="sample">サンプルの料理で試してみる</button>
+    <button class="btn ghost block" data-act="add-dish">自分で料理を追加する</button>
+  </div>`;
+}
+
+function sinceText(d) {
+  const g = daysSince(d);
+  return g == null ? 'まだ作ってない' : g === 0 ? '今日作った' : `${g}日ぶり`;
+}
+
+function pickedCard(d) {
+  const url = safeUrl(d.url);
+  return `<div class="card hero">
+    <div class="dish-name">${esc(d.name)}</div>
+    <div class="sub">${sinceText(d)} ・ ${d.interval}日ごとくらい</div>
+    ${d.ingredients.length ? `<div class="chips">${d.ingredients.map(i => `<span class="chip">${esc(i)}</span>`).join('')}</div>` : ''}
+    ${d.memo ? `<p class="memo">${esc(d.memo)}</p>` : ''}
+    ${url ? `<a class="btn ghost block" href="${esc(url)}" target="_blank" rel="noopener">レシピを開く ↗</a>` : ''}
+    <div class="row">
+      <button class="btn primary lg" data-act="made" data-id="${d.id}">作った！</button>
+      <button class="btn ghost lg" data-act="unpick" data-id="${d.id}">やめる</button>
+    </div>
+  </div>`;
+}
+
+function viewHome() {
+  if (!S.dishes.length) return emptyState();
+  const picked = S.picked.map(byId).filter(Boolean);
+  const rest = S.dishes.filter(d => !S.picked.includes(d.id));
+  const due = rest.filter(isDue).sort((a, b) => dueScore(b) - dueScore(a));
+  const later = rest.filter(d => !isDue(d)).sort((a, b) => (a.interval - daysSince(a)) - (b.interval - daysSince(b)));
+
+  let html = '';
+  if (picked.length) {
+    html += `<h3 class="sec">作る予定 <small>${picked.length}品</small></h3>${picked.map(pickedCard).join('')}`;
+  }
+
+  html += `<h3 class="sec">そろそろ食べたい <small>タップで作る予定に入れる</small></h3>`;
+  html += due.length
+    ? `<div class="card list">${due.map(d => `<button class="lrow" data-act="pick" data-id="${d.id}">
+        <span><span class="lname">${esc(d.name)}</span><small>${sinceText(d)} ・ ${d.interval}日ごと</small></span>
+        <span class="pill">＋ 選ぶ</span></button>`).join('')}</div>`
+    : `<div class="card empty-line">いまは「そろそろ」の料理はありません。<br>下の「まだ早い料理」からも選べます。</div>`;
+
+  if (later.length) {
+    html += `<button class="more" data-act="toggle-later">${showLater ? '▲ まだ早い料理を隠す' : `▼ まだ早い料理（${later.length}品）も見る`}</button>`;
+    if (showLater) {
+      html += `<div class="card list later">${later.map(d => `<button class="lrow" data-act="pick" data-id="${d.id}">
+        <span><span class="lname">${esc(d.name)}</span><small>${sinceText(d)} ・ あと${d.interval - daysSince(d)}日でリストに戻る</small></span>
+        <span class="pill quiet">選ぶ</span></button>`).join('')}</div>`;
+    }
+  }
+  html += aiEntry();
+  return html;
+}
+
+function aiEntry() {
+  return `<button class="card ai-entry" data-act="ai-open"><span class="big">💬</span>
+    <span><b>Claudeに相談する</b><small>余った食材から選んでもらう、料理を増やしてもらう など</small></span></button>`;
+}
+
+function shopItems() {
+  const map = new Map();
+  for (const d of S.picked.map(byId).filter(Boolean)) {
+    for (const ing of d.ingredients) {
+      if (!map.has(ing)) map.set(ing, new Set());
+      map.get(ing).add(d.name);
+    }
+  }
+  const items = [...map].map(([name, set]) => ({ name, from: [...set].join('・'), extra: false }));
+  for (const e of S.extras) if (!map.has(e)) items.push({ name: e, from: '自分で追加', extra: true });
+  return items;
+}
+
+function viewShop() {
+  const items = shopItems();
+  const open = items.filter(i => !S.checked[i.name]);
+  const done = items.filter(i => S.checked[i.name]);
+  const li = i => `<div class="srow ${S.checked[i.name] ? 'checked' : ''}">
+    <button class="s-main" data-act="check" data-name="${esc(i.name)}"><span class="box"></span><span><span class="sname">${esc(i.name)}</span><small>${esc(i.from)}</small></span></button>
+    ${i.extra ? `<button class="icon-btn" data-act="del-extra" data-name="${esc(i.name)}" aria-label="削除">✕</button>` : ''}
+  </div>`;
+  return `<p class="hint">「作る予定」に入れた料理の材料です。</p>
+    <form class="add-row" data-form="extra"><input id="extraIn" placeholder="ほかに買う物（例：牛乳）" enterkeyhint="done" autocomplete="off"><button class="btn primary">追加</button></form>
+    ${items.length
+      ? `<div class="card list">${open.length ? open.map(li).join('') : '<div class="empty-line">全部そろいました 🎉</div>'}${done.map(li).join('')}</div>
+         <div class="row"><button class="btn ghost" data-act="copy-shop">リストをコピー</button><button class="btn ghost" data-act="uncheck">チェックを外す</button></div>`
+      : `<div class="card empty-line">「ごはん」タブで料理を選ぶと、ここに買う物が並びます。</div>`}`;
+}
+
+function viewDishes() {
+  const list = [...S.dishes].sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+  const rows = list.map(d => {
+    const g = daysSince(d);
+    const state = S.picked.includes(d.id) ? '<span class="badge">作る予定</span>'
+      : isDue(d) ? '<span class="badge">そろそろ</span>'
+      : `<span class="badge quiet">あと${d.interval - g}日</span>`;
+    return `<button class="lrow" data-act="edit-dish" data-id="${d.id}">
+      <span><span class="lname">${esc(d.name)}</span><small>${d.interval}日ごと ・ ${g == null ? 'まだ作ってない' : g === 0 ? '今日作った' : `前回 ${g}日前`}</small></span>
+      ${state}
+    </button>`;
+  }).join('');
+  return `<button class="btn primary block" data-act="add-dish">＋ 料理を追加</button>
+    ${S.dishes.length
+      ? `<div class="card list">${rows}</div>`
+      : `<div class="card empty-line">まだ料理がありません。</div><button class="btn ghost block" data-act="sample">サンプルの料理を入れる</button>`}
+    ${aiEntry()}
+    <h3 class="sec">バックアップ</h3>
+    <div class="card">
+      <p class="small">データはこのスマホのブラウザの中に保存されています。機種変更などに備えて、ときどきバックアップしておくと安心です。<br>最終バックアップ：${S.settings.lastBackup ? md(S.settings.lastBackup) : 'まだ'}</p>
+      <div class="row"><button class="btn" data-act="export">バックアップを保存</button><button class="btn" data-act="import">復元する</button></div>
+    </div>`;
+}
+
+// ---------- シート（下から出るパネル） ----------
+let sheetTimer;
+function openSheet(title, html) {
+  clearTimeout(sheetTimer);
+  $('#sheetTitle').textContent = title;
+  $('#sheetBody').innerHTML = html;
+  const w = $('#sheet');
+  w.hidden = false;
+  w.querySelector('.sheet').scrollTop = 0;
+  requestAnimationFrame(() => requestAnimationFrame(() => w.classList.add('open')));
+  document.body.classList.add('noscroll');
+}
+function closeSheet() {
+  const w = $('#sheet');
+  w.classList.remove('open');
+  document.body.classList.remove('noscroll');
+  sheetTimer = setTimeout(() => { w.hidden = true; $('#sheetBody').innerHTML = ''; }, 220);
+}
+
+const PRESETS = [[7, '毎週'], [10, '10日'], [14, '2週間'], [21, '3週間'], [30, '月1']];
+function openDishForm(id) {
+  const d = id ? byId(id) : { name: '', interval: 10, ingredients: [], memo: '', url: '', history: [] };
+  const hist = d.history.slice(-5).reverse().map(md).join('、');
+  const madeToday = d.history.includes(today());
+  openSheet(id ? '料理を編集' : '料理を追加', `<form data-form="dish" data-id="${id || ''}">
+    <label class="f"><span>料理名</span><input id="fName" value="${esc(d.name)}" placeholder="例：カレーライス" autocomplete="off"></label>
+    <div class="f"><span>どのくらいの間隔で食べたい？</span>
+      <div class="chips pick">${PRESETS.map(([n, l]) => `<button type="button" class="chip-btn ${d.interval === n ? 'on' : ''}" data-act="preset" data-n="${n}">${l}</button>`).join('')}</div>
+      <div class="inline"><input id="fInt" type="number" inputmode="numeric" min="1" max="365" value="${d.interval}"> 日ごとくらい</div>
+    </div>
+    <label class="f"><span>材料 <small>（買い物リスト用・1行に1つ）</small></span><textarea id="fIng" rows="5" placeholder="豚こま肉&#10;玉ねぎ&#10;カレールー">${esc(d.ingredients.join('\n'))}</textarea></label>
+    <label class="f"><span>レシピのURL <small>（なくてもOK）</small></span><input id="fUrl" type="text" inputmode="url" autocapitalize="off" autocomplete="off" value="${esc(d.url)}" placeholder="https://..."></label>
+    <label class="f"><span>メモ <small>（分量やコツなど・なくてもOK）</small></span><textarea id="fMemo" rows="3">${esc(d.memo)}</textarea></label>
+    <button class="btn primary block lg">保存</button>
+    ${id ? `<p class="small" style="margin-top:20px">作った記録：${hist || 'まだなし'}${d.history.length > 5 ? ` ほか${d.history.length - 5}回` : ''}</p>
+      ${madeToday ? '' : `<button type="button" class="btn ghost block" data-act="made" data-id="${id}" style="margin-bottom:8px">今日これを作った（記録だけする）</button>`}
+      <button type="button" class="btn danger-ghost block" data-act="del-dish" data-id="${id}">この料理を削除</button>` : ''}
+  </form>`);
+}
+
+function saveDish(id) {
+  const name = $('#fName').value.trim();
+  if (!name) { $('#fName').focus(); return toast('料理名を入れてください'); }
+  const interval = Math.min(365, Math.max(1, parseInt($('#fInt').value) || 7));
+  const ingredients = [...new Set($('#fIng').value.split(/[\n、,，]/).map(s => s.trim()).filter(Boolean))];
+  let url = $('#fUrl').value.trim();
+  if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+  const memo = $('#fMemo').value.trim();
+  const d = id && byId(id);
+  if (d) Object.assign(d, { name, interval, ingredients, url, memo });
+  else S.dishes.push({ id: uid(), name, interval, ingredients, url, memo, history: [] });
+  save();
+  closeSheet();
+  render();
+  toast(d ? '保存しました' : `「${name}」を追加しました`);
+}
+
+// ---------- 操作 ----------
+const SAMPLES = [
+  ['カレーライス', 10, '豚こま肉,玉ねぎ,にんじん,じゃがいも,カレールー'],
+  ['豚の生姜焼き', 10, '豚ロース（生姜焼き用）,玉ねぎ,しょうが,キャベツ'],
+  ['鶏の照り焼き', 10, '鶏もも肉,キャベツ'],
+  ['麻婆豆腐', 14, '絹豆腐,豚ひき肉,長ねぎ'],
+  ['肉じゃが', 14, '牛こま肉,じゃがいも,玉ねぎ,にんじん,しらたき'],
+  ['親子丼', 10, '鶏もも肉,玉ねぎ,卵'],
+  ['鮭のホイル焼き', 14, '生鮭,玉ねぎ,しめじ,バター'],
+  ['肉野菜炒め', 7, '豚こま肉,キャベツ,もやし,にんじん,ピーマン'],
+  ['ハンバーグ', 21, '合いびき肉,玉ねぎ,パン粉,卵'],
+  ['焼きそば', 14, '焼きそば麺,豚こま肉,キャベツ,もやし'],
+  ['ミートソースパスタ', 14, 'スパゲッティ,合いびき肉,玉ねぎ,トマト缶'],
+  ['寄せ鍋', 14, '白菜,豆腐,鶏もも肉,長ねぎ,しいたけ'],
+];
+function addSamples() {
+  let n = 0;
+  for (const [name, interval, ing] of SAMPLES) {
+    if (S.dishes.some(d => d.name === name)) continue;
+    S.dishes.push({ id: uid(), name, interval, ingredients: ing.split(','), memo: '', url: '', history: [] });
+    n++;
+  }
+  save();
+  render();
+  toast(n ? `サンプルを${n}品入れました。「料理」タブで編集・削除できます` : 'サンプルはもう入っています');
+}
+
+function markMade(id) {
+  const d = byId(id);
+  if (!d) return;
+  const t = today();
+  const pos = S.picked.indexOf(id);
+  const wasNew = !d.history.includes(t);
+  if (wasNew) { d.history.push(t); d.history.sort(); }
+  if (pos >= 0) S.picked.splice(pos, 1);
+  save();
+  closeSheet();
+  render();
+  toast(`記録しました！${d.interval}日後にまたリストに出てきます`, '取り消す', () => {
+    if (wasNew) d.history = d.history.filter(h => h !== t);
+    if (pos >= 0 && !S.picked.includes(id)) S.picked.splice(pos, 0, id);
+    save();
+    render();
+  });
+}
+
+async function exportData() {
+  const name = `gohan-rote-${today()}.json`;
+  const json = JSON.stringify({ ...S, settings: { ...S.settings, lastBackup: today() } }, null, 2);
+  const file = new File([json], name, { type: 'application/json' });
+  const done = () => { S.settings.lastBackup = today(); save(); render(); };
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: name }); done(); toast('バックアップを保存しました'); return; }
+    catch (e) { if (e.name === 'AbortError') return; }
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(file);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  done();
+  toast('バックアップファイルを書き出しました');
+}
+
+function importData(file) {
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const o = JSON.parse(r.result);
+      if (!o || !Array.isArray(o.dishes)) throw new Error('bad');
+      if (!confirm(`料理${o.dishes.length}品のバックアップで、今のデータを置き換えます。よろしいですか？`)) return;
+      S = normalize(o);
+      save();
+      render();
+      toast('復元しました');
+    } catch (e) { toast('このファイルは読み込めませんでした'); }
+  };
+  r.readAsText(file);
+}
+
+async function copyText(text, msg) {
+  try { await navigator.clipboard.writeText(text); }
+  catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+  }
+  toast(msg);
+}
+
+function copyShop() {
+  const text = shopItems().filter(i => !S.checked[i.name]).map(i => '・' + i.name).join('\n');
+  if (!text) return toast('買う物はありません');
+  copyText(text, 'コピーしました。メモやLINEに貼り付けられます');
+}
+
+// ---------- Claude 連携（コピペでやり取り） ----------
+function aiPrompt() {
+  const t = today();
+  const rows = S.dishes.map(d => JSON.stringify({
+    name: d.name, interval: d.interval, last_made: lastMade(d), days_since: daysSince(d),
+    due: isDue(d), picked: S.picked.includes(d.id), ingredients: d.ingredients,
+    memo: d.memo || undefined, url: d.url || undefined,
+  }));
+  const fence = '```';
+  return `あなたは私の献立アプリ「ごはんローテ」のアシスタントです。
+このアプリは、料理ごとに「何日おきくらいに食べたいか（interval）」を決めておき、前回から interval 日以上たった料理（due: true）を「そろそろ食べたい」一覧に出すしくみです。
+下の【いまのデータ】を見て、最後の【お願い】に日本語で答えてください。
+
+アプリのデータを変更するときは、返事の最後に次の形式のコードブロックを1つだけ付けてください。私がそれをアプリに貼り付けて反映します。データを変えないときはコードブロックは不要です。
+
+${fence}json
+{"gohan_rote": 1, "actions": [ ... ]}
+${fence}
+
+使える actions：
+- {"op":"add","name":"料理名","interval":日数,"ingredients":["材料",...],"memo":"作り方のメモ","url":"レシピURL"} … 料理を追加
+- {"op":"update","name":"いまの料理名", 変える項目だけ "new_name" "interval" "ingredients" "memo" "url"} … 料理を変更（ingredients は全体を置き換え）
+- {"op":"delete","name":"料理名"} … 料理を削除
+- {"op":"pick","name":"料理名"} … 「作る予定」に入れる
+- {"op":"unpick","name":"料理名"} … 「作る予定」から外す
+- {"op":"made","name":"料理名","date":"YYYY-MM-DD"} … 作った記録を付ける
+- {"op":"shop","item":"品名"} … 買い物リストに追加
+
+ルール：
+- add 以外の name は、データにある料理名と1文字も違わずに書く
+- interval は 1〜365 の日数。迷ったら主菜は 10〜14
+- ingredients は分量なしで1品ずつ。塩・醤油などの常備調味料は書かない
+- url は実在を確認できない場合は付けない
+- 何を変えるかは、コードブロックの前に短く説明する
+
+【いまのデータ】
+今日：${t}
+${fence}json
+[
+${rows.join(',\n')}
+]
+${fence}
+
+【お願い】
+`;
+}
+
+function openAiSheet() {
+  aiPending = null;
+  openSheet('Claudeに相談する', `
+    <ol class="steps">
+      <li>「データをコピー」を押す</li>
+      <li>Claudeを開いて貼り付け、最後にお願いを書いて送る
+        <small>例：「鶏肉と白菜が余ってる。どれを作ればいい？」<br>「魚料理を3つ増やして」「肉じゃがの材料にいんげんを足して」</small></li>
+      <li>返事に変更内容が付いていたら、返事をコピーして下に貼り付ける</li>
+    </ol>
+    <div class="row">
+      <button class="btn primary" data-act="ai-copy">データをコピー</button>
+      <a class="btn ghost" href="https://claude.ai/new" target="_blank" rel="noopener" style="text-align:center;text-decoration:none">Claudeを開く ↗</a>
+    </div>
+    <textarea id="aiIn" class="ai-in" rows="5" placeholder="Claudeの返事をここに貼り付け（全部でもOK）"></textarea>
+    <div class="row">
+      <button class="btn ghost" data-act="ai-paste">クリップボードから貼る</button>
+      <button class="btn" data-act="ai-check">変更内容を確認</button>
+    </div>
+    <div id="aiPreview" style="margin-top:12px"></div>`);
+}
+
+// 返事の中から {"actions":[...]} を探す。コードブロックがあれば最後のものを優先
+function parseReply(text) {
+  const blocks = [...text.matchAll(/```[a-zA-Z]*\s*([\s\S]*?)```/g)].map(m => m[1]);
+  const cands = (blocks.length ? blocks : [text]).reverse();
+  for (const c of cands) {
+    const tries = [c.trim()];
+    const s = c.indexOf('{'), e = c.lastIndexOf('}');
+    if (s >= 0 && e > s) tries.push(c.slice(s, e + 1));
+    for (const tr of tries) {
+      try {
+        const o = JSON.parse(tr);
+        const acts = Array.isArray(o) ? o : o && Array.isArray(o.actions) ? o.actions : null;
+        if (acts && acts.some(a => a && a.op)) return acts;
+      } catch (err) {}
+    }
+  }
+  return null;
+}
+
+// st（データのコピー）に actions を適用し、何をしたかの一覧を返す
+function applyActions(st, actions) {
+  const out = [];
+  const t = today();
+  const list = v => [...new Set((Array.isArray(v) ? v : String(v).split(/[\n、,，]/)).map(x => String(x).trim()).filter(Boolean))];
+  const setFields = (d, a) => {
+    const ch = [];
+    const nn = String(a.new_name ?? '').trim();
+    if (nn && nn !== d.name) { ch.push(`名前→${nn}`); d.name = nn; }
+    if (a.interval != null) { d.interval = Math.min(365, Math.max(1, parseInt(a.interval) || d.interval)); ch.push(`${d.interval}日ごと`); }
+    if (a.ingredients != null) { d.ingredients = list(a.ingredients); ch.push('材料'); }
+    if (a.memo != null) { d.memo = String(a.memo).trim(); ch.push('メモ'); }
+    if (a.url != null) { let u = String(a.url).trim(); if (u && !/^https?:\/\//i.test(u)) u = 'https://' + u; d.url = u; ch.push('レシピURL'); }
+    return ch;
+  };
+  for (const a of actions) {
+    if (!a || typeof a !== 'object' || !a.op) continue;
+    const name = String(a.name ?? '').trim();
+    const d = name ? st.dishes.find(x => x.name === name) : null;
+    const miss = () => out.push({ ok: false, text: `「${name || '名前なし'}」という料理が見つからないのでスキップ` });
+    switch (a.op) {
+      case 'add': {
+        if (!name) { out.push({ ok: false, text: '名前のない料理はスキップ' }); break; }
+        if (d) { out.push({ ok: true, text: `更新：${name}（${setFields(d, a).join('・') || '変更なし'}）` }); break; }
+        const nd = { id: uid(), name, interval: 10, ingredients: [], memo: '', url: '', history: [] };
+        setFields(nd, { ...a, new_name: null });
+        st.dishes.push(nd);
+        out.push({ ok: true, text: `追加：${name}（${nd.interval}日ごと${nd.ingredients.length ? `・材料${nd.ingredients.length}品` : ''}）` });
+        break;
+      }
+      case 'update': {
+        if (!d) { miss(); break; }
+        out.push({ ok: true, text: `変更：${name}（${setFields(d, a).join('・') || '変更なし'}）` });
+        break;
+      }
+      case 'delete':
+        if (!d) { miss(); break; }
+        st.dishes = st.dishes.filter(x => x !== d);
+        st.picked = st.picked.filter(x => x !== d.id);
+        out.push({ ok: true, text: `削除：${name}` });
+        break;
+      case 'pick':
+        if (!d) { miss(); break; }
+        if (!st.picked.includes(d.id)) st.picked.push(d.id);
+        out.push({ ok: true, text: `作る予定に入れる：${name}` });
+        break;
+      case 'unpick':
+        if (!d) { miss(); break; }
+        st.picked = st.picked.filter(x => x !== d.id);
+        out.push({ ok: true, text: `作る予定から外す：${name}` });
+        break;
+      case 'made': {
+        if (!d) { miss(); break; }
+        const date = /^\d{4}-\d\d-\d\d$/.test(a.date || '') ? a.date : t;
+        if (date > t) { out.push({ ok: false, text: `${name}：先の日付（${date}）は記録できないのでスキップ` }); break; }
+        if (!d.history.includes(date)) { d.history.push(date); d.history.sort(); }
+        if (date === t) st.picked = st.picked.filter(x => x !== d.id);
+        out.push({ ok: true, text: `作った記録：${name}（${md(date)}）` });
+        break;
+      }
+      case 'shop': {
+        const item = String(a.item ?? a.name ?? '').trim();
+        if (!item) break;
+        if (!st.extras.includes(item)) st.extras.push(item);
+        delete st.checked[item];
+        out.push({ ok: true, text: `買い物リストに追加：${item}` });
+        break;
+      }
+      default:
+        out.push({ ok: false, text: `わからない操作（${a.op}）はスキップ` });
+    }
+  }
+  return out;
+}
+
+let aiPending = null;
+function aiCheck() {
+  const box = $('#aiPreview');
+  const actions = parseReply($('#aiIn').value);
+  aiPending = null;
+  if (!actions) {
+    box.innerHTML = `<p class="warn">変更内容が見つかりませんでした。Claudeの返事の「\`\`\`json」から始まる部分を含めて貼り付けてください。</p>`;
+    return;
+  }
+  const draft = JSON.parse(JSON.stringify(S));
+  const msgs = applyActions(draft, actions);
+  const okCount = msgs.filter(m => m.ok).length;
+  if (okCount) aiPending = draft;
+  box.innerHTML = `<div class="card list">${msgs.map(m => `<div class="pv ${m.ok ? '' : 'ng'}">${m.ok ? '✓' : '⚠'} ${esc(m.text)}</div>`).join('')}</div>
+    ${okCount ? `<button class="btn primary block lg" data-act="ai-apply">この内容で反映する（${okCount}件）</button>` : ''}`;
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function aiApply() {
+  if (!aiPending) return;
+  const before = JSON.parse(JSON.stringify(S));
+  S = normalize(aiPending);
+  aiPending = null;
+  save();
+  closeSheet();
+  render();
+  toast('Claudeの変更を反映しました', '取り消す', () => { S = normalize(before); save(); render(); });
+}
+async function aiPaste() {
+  try { $('#aiIn').value = await navigator.clipboard.readText(); aiCheck(); }
+  catch (e) { toast('貼り付けできませんでした。入力欄を長押しして貼り付けてください'); }
+}
+
+let toastTimer;
+function toast(msg, actionLabel, action) {
+  const el = $('#toast');
+  el.textContent = msg;
+  if (actionLabel) {
+    const b = document.createElement('button');
+    b.textContent = actionLabel;
+    b.onclick = () => { el.classList.remove('show'); action(); };
+    el.appendChild(b);
+  }
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), actionLabel ? 5000 : 2800);
+}
+
+document.addEventListener('click', e => {
+  const tb = e.target.closest('[data-tab]');
+  if (tb) { tab = tb.dataset.tab; window.scrollTo(0, 0); render(); return; }
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const { act, id, name, n } = el.dataset;
+  switch (act) {
+    case 'close-sheet': closeSheet(); break;
+    case 'sample': addSamples(); break;
+    case 'add-dish': openDishForm(null); break;
+    case 'edit-dish': openDishForm(id); break;
+    case 'preset':
+      $('#fInt').value = n;
+      document.querySelectorAll('[data-act="preset"]').forEach(b => b.classList.toggle('on', b === el));
+      break;
+    case 'del-dish': {
+      const d = byId(id);
+      if (!d || !confirm(`「${d.name}」を削除しますか？`)) return;
+      S.dishes = S.dishes.filter(x => x.id !== id);
+      S.picked = S.picked.filter(x => x !== id);
+      save(); closeSheet(); render(); toast('削除しました');
+      break;
+    }
+    case 'pick': {
+      if (!S.picked.includes(id)) S.picked.push(id);
+      save(); render();
+      const d = byId(id);
+      toast(`「${d.name}」を作る予定に入れました`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      break;
+    }
+    case 'unpick': S.picked = S.picked.filter(x => x !== id); save(); render(); break;
+    case 'made': markMade(id); break;
+    case 'toggle-later': showLater = !showLater; render(); break;
+    case 'check':
+      if (S.checked[name]) delete S.checked[name]; else S.checked[name] = true;
+      save(); render();
+      break;
+    case 'del-extra': S.extras = S.extras.filter(x => x !== name); delete S.checked[name]; save(); render(); break;
+    case 'uncheck':
+      S.extras = S.extras.filter(x => !S.checked[x]);
+      S.checked = {};
+      save(); render(); toast('チェックをリセットしました');
+      break;
+    case 'copy-shop': copyShop(); break;
+    case 'ai-open': openAiSheet(); break;
+    case 'ai-copy':
+      if (!S.dishes.length) return toast('先に料理を登録するか、サンプルを入れてください');
+      copyText(aiPrompt(), 'コピーしました。Claudeに貼り付けて、最後にお願いを書いてください');
+      break;
+    case 'ai-paste': aiPaste(); break;
+    case 'ai-check': aiCheck(); break;
+    case 'ai-apply': aiApply(); break;
+    case 'export': exportData(); break;
+    case 'import': $('#importFile').value = ''; $('#importFile').click(); break;
+  }
+});
+
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  const f = e.target;
+  if (f.dataset.form === 'dish') saveDish(f.dataset.id);
+  if (f.dataset.form === 'extra') {
+    const v = $('#extraIn').value.trim();
+    if (!v) return;
+    if (!S.extras.includes(v)) S.extras.push(v);
+    delete S.checked[v];
+    save(); render();
+    $('#extraIn').focus();
+  }
+});
+
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.id === 'importFile' && el.files[0]) importData(el.files[0]);
+});
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#sheet').hidden) closeSheet(); });
+
+// アプリを開き直したとき、日付が変わっていれば一覧を更新
+document.addEventListener('visibilitychange', () => { if (!document.hidden && $('#sheet').hidden) render(); });
+
+render();
+
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
